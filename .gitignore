@@ -1,0 +1,19 @@
+# Secrets / env
+.env
+*.env
+
+# Dependencies
+/vendor/
+
+# CodeIgniter runtime (not code; may contain sensitive data)
+writable/cache/
+writable/logs/
+writable/session/
+writable/debugbar/
+writable/uploads/
+public_html/uploads/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
