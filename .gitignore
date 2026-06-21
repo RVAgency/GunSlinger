@@ -17,3 +17,6 @@ public_html/uploads/
 .DS_Store
 Thumbs.db
 *.log
+
+# runtime
+error_log
