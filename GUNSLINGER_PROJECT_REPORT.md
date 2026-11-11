@@ -164,6 +164,6 @@ A full technical deployment guide is in the repository at `docs/DEPLOYMENT.md`.
 
 - ~~GoDaddy hosting access~~ – received
 - SendGrid / Twilio account access
-- Airtable base access
+- Airtable access to the **Gunslinger** base. The Airtable access we have is for LeadGenSys/GeoMap, which is a separate base from Gunslinger's.
 - Vercel account access, if used
 - Any new sender email addresses to add
