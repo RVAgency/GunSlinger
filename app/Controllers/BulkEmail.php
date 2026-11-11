@@ -59,7 +59,8 @@ class BulkEmail extends BaseController
             $from_email = $this->request->getPost('fromEmailSelect');
             //Get the from email name
             $from_email_name = $this->request->getPost('fromEmailName');
-            $upload_group_file_name = $this->request->getPost('fromReceipeintGroup');
+            // basename() stops "../" paths from reading files outside uploads/excels
+            $upload_group_file_name = basename((string) $this->request->getPost('fromReceipeintGroup'));
             $filePath = WRITEPATH . 'uploads/excels/' . $upload_group_file_name;
             // Validate that the file and templateId are present
             if (!file_exists($filePath)) {
@@ -201,7 +202,8 @@ class BulkEmail extends BaseController
             $from_email = $this->request->getPost('fromEmailSelect');
             //Get the from email name
             $from_email_name = $this->request->getPost('fromEmailName');
-            $upload_group_file_name = $this->request->getPost('fromReceipeintGroup');
+            // basename() stops "../" paths from reading files outside uploads/excels
+            $upload_group_file_name = basename((string) $this->request->getPost('fromReceipeintGroup'));
             $filePath = WRITEPATH . 'uploads/excels/' . $upload_group_file_name;
             // Validate that the file and templateId are present
             if (!file_exists($filePath)) {

@@ -136,7 +136,7 @@ A full technical deployment guide is in the repository at `docs/DEPLOYMENT.md`.
 | 1 | ~~No server access~~ – **Resolved 11 Nov 2026.** Server access is set up and the code is verified. | – | Done |
 | 2 | The CodeIgniter framework files (`system/`) and libraries (`vendor/`) are not in GitHub. They exist only on the server. | The app cannot be rebuilt from GitHub alone. A full server backup covers this for now. | Medium |
 | 2a | The server runs PHP 8.1, which no longer gets security updates, and GoDaddy has flagged a PHP advisory. | Security risk for both sites on the server. | **High** |
-| 3 | A hidden test link on the login page shows server configuration details to anyone. | Security risk. It should be removed. | **High** |
+| 3 | ~~A hidden test link on the login page showed server configuration details to anyone.~~ **Fixed and deployed 11 Nov 2026**, together with two further hardening fixes: the login lookup is protected against injection, and the recipient-list file lookup can no longer reach files outside the uploads folder. | – | Done |
 | 4 | Only two sender addresses are allowed (`service@mobilefuneralservice.com` and `service@resthavenbatonrouge.com`), and they are fixed in the code. | Adding a new sender needs a code change. | Medium |
 | 5 | The "name" field sent to every email template is fixed to "Vishal". | Wrong personalisation if a template uses the name. | Medium |
 | 6 | Some error messages (missing file or template) would crash the request instead of showing a proper message. | Confusing errors for users. | Medium |
@@ -153,7 +153,7 @@ A full technical deployment guide is in the repository at `docs/DEPLOYMENT.md`.
 3. ~~Verify that the live code matches GitHub~~ – **Done**: identical.
 4. ~~Write deployment instructions~~ – **Done** (`docs/DEPLOYMENT.md`).
 5. **Download a full cPanel backup** of the `gunadmin` account and check GoDaddy's automatic VPS backups.
-6. **Fix the security issues:** remove the hidden test link (item 3), and plan the PHP upgrade for the whole server (item 2a).
+6. ~~Fix the app security issues (item 3)~~ – **Done**, deployed 11 Nov 2026. **Still to do:** plan the PHP upgrade for the whole server (item 2a).
 7. **Confirm access** to the SendGrid (Twilio) account and the Airtable base.
 8. **Check Vercel** to see whether the old Next.js version is still deployed, and decide if it should be removed.
 9. **Fix the medium-priority code issues** (Section 6).

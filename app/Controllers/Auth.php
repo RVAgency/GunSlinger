@@ -6,10 +6,6 @@ use App\Libraries\Airtable;
 class Auth extends BaseController{
 
     public function login(): string{
-        if(isset($_GET['test']) && $_GET['test'] == '1'){
-            print_r(phpinfo());
-            exit;
-        }
         // Check session in constructor
         if (session()->has('user')) {
             header('Location: ' . base_url('/campaigns'));
@@ -24,7 +20,9 @@ class Auth extends BaseController{
 
         //Fetch the records from the airtable as per the need
         $airtable = new Airtable();
-        $filter = "{email}=\"{$email}\"";
+        // Escape backslashes and quotes so the email cannot alter the Airtable formula
+        $safeEmail = str_replace(['\\', '"'], ['\\\\', '\\"'], (string) $email);
+        $filter = "{email}=\"{$safeEmail}\"";
         $records = $airtable->getRecords('auth', $filter);
 
         // $airtableBaseId = env('AIRTABLE_BASE_ID');
