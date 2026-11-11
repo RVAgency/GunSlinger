@@ -36,6 +36,13 @@ These paths come from `app/Config/Paths.php`, `app/Config/Constants.php` and the
 
 Do **not** overwrite `system/`, `vendor/`, `writable/` or `.env` during a deploy. They exist only on the server.
 
+Verified over SSH on 2026-11-11:
+- CodeIgniter **4.6.3**, PHP **8.1.35**.
+- `app/` and `public_html/` match this repo exactly (checksums compared).
+- `vendor/`, `composer.json` and `composer.lock` are owned by **root**, and `composer` is not available to `gunadmin`. Adding or changing a Composer package needs root (WHM).
+- `git` and `rsync` are available. Disk use is 19 of 99 GB.
+- An earlier code snapshot exists at `~/gunslinger-code-2026-06-21.tgz`.
+
 Required `.env` variable names: `AIRTABLE_BASE_ID`, `AIRTABLE_ACCESS_TOKEN`, `SENDGRID_API_KEY`, `SENDGRID_API_URL`, `UNSUBSCRIBE_SENDGRID_GROUP_ID`.
 
 The base URL is hard-coded in `app/Config/App.php` as `https://gunslinger.cc/`.
@@ -44,24 +51,43 @@ The base URL is hard-coded in `app/Config/App.php` as `https://gunslinger.cc/`.
 
 | Method | Host | Port | Username | Auth | Status |
 |---|---|---|---|---|---|
-| SSH / SFTP | `184.168.30.73` (or `gunslinger.cc`) | 22 | `gunadmin` (assumed: cPanel user) | **UNKNOWN** (password or key). The credential location is **UNKNOWN — needs confirmation from Indrajit.** | Port open, banner `SSH-2.0-OpenSSH_9.9`. **Login not tested** (no credential available). On GoDaddy shared hosting, SSH must be enabled in cPanel first. |
+| **SSH / SFTP (use this)** | `184.168.30.73` | 22 | `gunadmin` | SSH key `gunslinger_deploy` (ed25519). The private key is on Indrajit's PC at `~/.ssh/gunslinger_deploy`; the public key is authorized in cPanel → SSH Access. Shell is **Jailed Shell** (set in WHM → Manage Shell Access). | **Working.** Tested 2026-11-11. |
 | FTP | `184.168.30.73` | 21 | – | – | Port closed/filtered. Use SFTP instead. |
 | cPanel File Manager | `https://184.168.30.73:2083` | 2083 | `gunadmin` | cPanel password | Login page reachable. **Login not tested.** |
 | Git deploy (cPanel "Git Version Control") | – | – | – | – | **UNKNOWN.** There is no evidence it is used. The repo was created on 2025-08 by copying files *off* the server, which suggests manual uploads. |
 
 ## 4. Deploy procedure
 
-**How Vishal deployed historically: UNKNOWN — needs confirmation from Indrajit.** No deploy scripts, CI config or Git hooks exist in this repo.
+How Vishal deployed historically is unknown. There are no deploy scripts or CI. The procedure below uses the SSH access set up on 2026-11-11.
 
-The procedure below is a **proposed** procedure. Nobody has tested it yet. Confirm file access (Section 3) before using it.
+**Always get Indrajit's go-ahead before deploying.**
 
-1. Work on branch `gunslinger-production-godaddy`. This is the code that runs in production.
-   - The `main` branch on `RVAgency/GunSlinger` is a separate, older Next.js app. Never deploy it here.
-2. Back up first (see Section 5). Download `/home/gunadmin/app` and `/home/gunadmin/public_html`, or make a cPanel backup.
-3. Upload **only the changed files** under `app/` and/or `public_html/` to the same paths under `/home/gunadmin/`, using SFTP or cPanel File Manager.
-4. There is no build step. This is plain PHP, and the front-end uses CDN scripts.
-5. If you added a Composer package, run `composer install --no-dev` in `/home/gunadmin` over SSH. Whether `composer` exists on the server is **UNKNOWN**.
-6. Clear the cache if config or routes changed: delete the contents of `/home/gunadmin/writable/cache/` but keep `index.html`. No service restart is needed or possible on shared hosting.
+```bash
+SSH="ssh -i ~/.ssh/gunslinger_deploy -o IdentitiesOnly=yes"
+HOST=gunadmin@184.168.30.73
+
+# 1. Commit the change on the branch that runs in production
+git checkout gunslinger-production-godaddy   # never deploy RVAgency main (old Next.js app)
+
+# 2. Back up the current code on the server
+$SSH $HOST 'cd ~ && tar czf ~/backups/code-$(date +%F-%H%M).tgz app public_html/index.php public_html/.htaccess'
+#    (create ~/backups once: $SSH $HOST 'mkdir -p ~/backups')
+
+# 3. Dry run: list exactly which files would change, then show this to Indrajit
+rsync -rlcvn --exclude='.gitkeep' -e "$SSH" app/ $HOST:app/
+rsync -rlcvn -e "$SSH" public_html/index.php public_html/.htaccess $HOST:public_html/
+
+# 4. Real upload (same commands without -n). Never use --delete. Never sync system/, vendor/, writable/ or .env.
+rsync -rlcv --exclude='.gitkeep' -e "$SSH" app/ $HOST:app/
+
+# 5. Clear the cache if config or routes changed
+$SSH $HOST 'find ~/writable/cache -type f ! -name index.html -delete'
+```
+
+- There is no build step and no service restart: PHP picks up file changes immediately.
+- Composer changes need root (see Section 2).
+
+**Server-wide changes** (PHP version, OS or cPanel updates, reboot) affect **both** sites on this VPS: gunslinger.cc and leadgensys.cc. Only make them with explicit approval and after a full backup.
 
 ## 5. Verification
 
@@ -84,7 +110,11 @@ Also check `/home/gunadmin/writable/logs/log-<today>.log` for new `CRITICAL` ent
 
 ## 6. Rollback and backups
 
-- **Rollback:** re-upload the files from the backup taken in step 2 of Section 4, or check out the previous commit of `gunslinger-production-godaddy` and upload those files.
+- **Rollback:** restore the tarball from step 2 of Section 4:
+  ```bash
+  $SSH $HOST 'cd ~ && tar xzf ~/backups/code-<timestamp>.tgz'
+  ```
+  Alternatively, check out the previous commit of `gunslinger-production-godaddy` and upload it with rsync.
 - **Existing backups:** **UNKNOWN — needs confirmation from Indrajit.** It is not known whether GoDaddy automatic backups (cPanel → Backup) are enabled. The only off-server copy of the code is this Git repo, and it excludes `system/`, `vendor/`, `.env` and `writable/`.
 - **Recommended:** take one full cPanel backup now and store it outside the server.
 
