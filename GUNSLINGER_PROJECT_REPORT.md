@@ -15,7 +15,8 @@ Gunslinger is a web app for sending bulk email campaigns. A user logs in, upload
 
 - The live site at https://gunslinger.cc is **up and working**. Login was tested on 11 Nov 2026, and the Campaign page loads its SendGrid templates.
 - We have the **application source code** in GitHub.
-- We **do not have the deployment/hosting details** yet: no hosting login, no server access and no production configuration file (`.env`). The live app appears to be hosted on **GoDaddy**, not Vercel. **I will check the GoDaddy account to confirm this** and collect the missing pieces (see Section 6).
+- **Confirmed:** the live app is hosted on **GoDaddy cPanel hosting**, not on Vercel. The domain gunslinger.cc is registered in our older GoDaddy development account and is set to auto-renew. Details are in Section 5.
+- **Still missing:** the hosting (cPanel) login, server file access (SSH/SFTP), and a backup of the files that exist only on the server, including the production settings file (`.env`). Until we have these, we can view the site but cannot safely update it.
 
 ---
 
@@ -40,7 +41,7 @@ Gunslinger is a web app for sending bulk email campaigns. A user logs in, upload
 | Email sending | **SendGrid** (Twilio SendGrid) API, using dynamic templates |
 | Database | **Airtable** (no SQL database is used) |
 | Excel reading | PhpSpreadsheet library |
-| Hosting (likely) | **GoDaddy** shared hosting with cPanel (server user folder `/home/gunadmin`) |
+| Hosting | **GoDaddy** cPanel hosting (Linux, Apache, PHP 8.1) |
 
 ### Airtable tables used
 
@@ -74,11 +75,53 @@ Gunslinger is a web app for sending bulk email campaigns. A user logs in, upload
 
 ---
 
-## 5. Issues Found in the Code
+## 5. Production (Live) Setup
+
+### Domain – gunslinger.cc
+
+| Item | Value |
+|---|---|
+| Registrar | GoDaddy (older development account, which also holds leadgensys.cc and geomap.cc) |
+| Registered | 26 July 2025 |
+| Expires | 26 July 2027 – **auto-renew is ON** |
+| Privacy / transfer lock | ON / ON |
+| DNS managed at | GoDaddy (ns17 / ns18.domaincontrol.com) |
+| Points to | `184.168.30.73` (GoDaddy server); `www.gunslinger.cc` points to the same place |
+
+### Hosting server
+
+| Item | Value |
+|---|---|
+| Type | GoDaddy cPanel hosting (exact plan, shared or VPS, to be confirmed) |
+| cPanel account | `gunadmin` |
+| Control panel | cPanel, via the GoDaddy account → My Products → Web Hosting |
+| File access | SSH/SFTP is available on the server, but **we do not have the login yet** |
+| Website status | Live. The login page and the redirect for logged-out users were checked on 11 Nov 2026. |
+
+### How the app is deployed
+
+- **There is no automatic deployment.** No build tools, pipelines or deploy scripts exist. Files are placed directly on the server, and most likely were uploaded by hand through cPanel or SFTP. The exact method used previously still needs to be confirmed.
+- **No build step is needed.** It is a plain PHP application.
+- Only part of the app is in GitHub. These parts exist **only on the server**:
+  - the CodeIgniter framework (`system/`)
+  - add-on libraries (`vendor/`)
+  - the settings file with the Airtable and SendGrid keys (`.env`)
+  - uploaded Excel recipient lists (`writable/uploads/`)
+- **Backups:** we have not yet confirmed whether GoDaddy backups are enabled. Taking a full backup is the first step before any change.
+
+### Email (SendGrid) note
+
+The app sends email from `mobilefuneralservice.com` and `resthavenbatonrouge.com`, not from gunslinger.cc. The SendGrid sender setup therefore lives on those two domains. gunslinger.cc itself is not set up to send email.
+
+A full technical deployment guide is in the repository at `docs/DEPLOYMENT.md`.
+
+---
+
+## 6. Issues Found in the Code
 
 | # | Issue | Impact | Priority |
 |---|---|---|---|
-| 1 | Hosting details, server access and the `.env` settings file are not available to us. | We cannot redeploy or fix the live site until we get access. | **High** |
+| 1 | The hosting login, server access and the `.env` settings file are not available to us. | We cannot redeploy or fix the live site until we get access. | **High** |
 | 2 | The CodeIgniter framework files (`system/`) and libraries (`vendor/`) are not in GitHub. They exist only on the server. | The app cannot be set up again from GitHub alone. | **High** |
 | 3 | A hidden test link on the login page shows server configuration details to anyone. | Security risk. It should be removed. | **High** |
 | 4 | Only two sender addresses are allowed (`service@mobilefuneralservice.com` and `service@resthavenbatonrouge.com`), and they are fixed in the code. | Adding a new sender needs a code change. | Medium |
@@ -90,23 +133,21 @@ Gunslinger is a web app for sending bulk email campaigns. A user logs in, upload
 
 ---
 
-## 6. Next Steps
+## 7. Next Steps
 
-1. **Check GoDaddy** (I will do this) and confirm:
-   - the hosting plan and cPanel login
-   - the domain/DNS settings for gunslinger.cc
-   - FTP/SSH access to `/home/gunadmin`
-2. **Take a full backup** from the server: `system/`, `vendor/`, `.env` and `writable/uploads/` (uploaded Excel lists).
-3. **Confirm access** to the SendGrid (Twilio) account and the Airtable base.
-4. **Check Vercel** to see whether the Next.js version is still deployed, and decide if it should be kept or removed.
-5. **Fix the high-priority issues** (Section 5, items 1–3), then the medium ones.
-6. **Add setup instructions** to the repository so the app can be redeployed easily in the future.
+1. ~~Check the domain and DNS in GoDaddy~~ – **Done** (see Section 5).
+2. **Get the cPanel hosting login** and turn on SSH/SFTP access for the `gunadmin` account.
+3. **Take a full backup** from the server: `system/`, `vendor/`, `.env` and `writable/uploads/` (uploaded Excel lists).
+4. **Confirm access** to the SendGrid (Twilio) account and the Airtable base.
+5. **Check Vercel** to see whether the Next.js version is still deployed, and decide if it should be kept or removed.
+6. **Fix the high-priority issues** (Section 6, items 1–3), then the medium ones.
+7. ~~Add setup instructions to the repository~~ – **Done** (`docs/DEPLOYMENT.md`). It will be updated once server access is confirmed.
 
 ---
 
-## 7. Information Needed from RVA
+## 8. Information Needed from RVA
 
-- GoDaddy account access, or a team member who can share the cPanel/hosting login
+- The login for the GoDaddy account that holds the gunslinger.cc hosting (cPanel)
 - SendGrid / Twilio account access
 - Airtable base access
 - Vercel account access, if used
