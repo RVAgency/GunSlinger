@@ -92,9 +92,10 @@ Gunslinger is a web app for sending bulk email campaigns. A user logs in, upload
 
 | Item | Value |
 |---|---|
-| Type | GoDaddy cPanel hosting (exact plan, shared or VPS, to be confirmed) |
+| Type | **GoDaddy VPS** (self-managed): AlmaLinux 9, cPanel & WHM, 2 CPU, 4 GB RAM, US West |
 | cPanel account | `gunadmin` |
-| Control panel | cPanel, via the GoDaddy account → My Products → Web Hosting |
+| Control panel | GoDaddy → My Hosting → GunSlinger → **Launch WHM**, then the `gunadmin` cPanel |
+| Security | GoDaddy has flagged a PHP security update for this server. Because the VPS is self-managed, we must apply it ourselves, after taking a backup. |
 | File access | SSH/SFTP is available on the server, but **we do not have the login yet** |
 | Website status | Live. The login page and the redirect for logged-out users were checked on 11 Nov 2026. |
 

@@ -11,13 +11,14 @@ Anything marked **UNKNOWN** has not been confirmed. Do not guess. Ask Indrajit.
 | Item | Value | How it was confirmed |
 |---|---|---|
 | Provider | GoDaddy | Reverse DNS: `73.30.168.184.host.secureserver.net` |
-| Product | cPanel hosting (Linux, Apache, PHP 8.1 via EasyApache `ea-php81`) | cPanel login page on port 2083. `public_html/.htaccess` sets the `ea-php81` handler. |
-| Shared hosting or VPS | **UNKNOWN — needs confirmation from Indrajit.** Port 2087 (WHM) also answers, but GoDaddy shared servers expose it too. | – |
+| Product | **GoDaddy VPS** named "GunSlinger": AlmaLinux 9, cPanel & WHM v138, 2 CPU, 4 GB RAM, US West. Apache, with PHP 8.1 via EasyApache `ea-php81`. | GoDaddy hosting dashboard (2026-11-11) |
+| Management | **Self-managed.** We are responsible for OS, PHP and security updates. GoDaddy shows a PHP security advisory (CVE-2026-109618/109619) as of 2026-11-11. | GoDaddy Message Center |
+| WHM (server admin) | GoDaddy → My Hosting → GunSlinger → **Launch WHM** (opens `https://73.30.168.184.host.secureserver.net:2087`) | Opened 2026-11-11 |
 | Server IP | `184.168.30.73` | DNS + GoDaddy API |
 | cPanel account (Linux user) | `gunadmin` (home `/home/gunadmin`) | Paths in production error logs |
 | Control panel | `https://184.168.30.73:2083` (cPanel login). It can also be reached from GoDaddy account → My Products → Web Hosting → Manage. | HTTP 200, page title "cPanel Login" |
-| GoDaddy account that owns the hosting | **UNKNOWN — needs confirmation from Indrajit.** It is probably the same "old dev" account that holds the domain (see Section 6). The API key cannot see hosting products (`/v1/shoppers/me` → 403). | – |
-| cPanel password | **UNKNOWN location — needs confirmation from Indrajit.** It is not stored in this repo. | – |
+| GoDaddy account that owns the hosting | The same GoDaddy account as the domain (Santosh's login), where Products lists "Gunslinger – Domain, Website". The API key cannot see hosting products (`/v1/shoppers/me` → 403). | GoDaddy Products page |
+| cPanel access | No separate password is needed. Go to WHM → List Accounts → `gunadmin` → cP icon. | – |
 
 ## 2. Server layout
 
