@@ -91,7 +91,7 @@ Also check `/home/gunadmin/writable/logs/log-<today>.log` for new `CRITICAL` ent
 
 The domain is in the **old dev GoDaddy account**. That account also holds geomap.cc, leadgensys.cc and rva-dev.com. The account was confirmed via `GET /v1/domains`.
 
-DNS is managed with the GoDaddy API, using the **dev-account key**. This key is **NOT** the key in the LeadGenSys app's active config; that one belongs to the funeral-home account, which cannot see gunslinger.cc. The dev key is kept, commented out, in Indrajit's local `leadgensys-rva/.env` as `GODADDY_API_KEY` / `GODADDY_API_SECRET`.
+DNS is managed with the GoDaddy API, using the **dev-account key**. This key is **NOT** the key in the LeadGenSys app's active config; that one belongs to the funeral-home account, which cannot see gunslinger.cc. The dev key is kept as `GODADDY_API_KEY` / `GODADDY_API_SECRET` in Indrajit's local `gunslinger/.env`, which git ignores. It is also kept, commented out, in `leadgensys-rva/.env`.
 
 | Field | Value |
 |---|---|
